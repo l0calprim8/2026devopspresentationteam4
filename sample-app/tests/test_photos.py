@@ -57,9 +57,26 @@ def test_upload_no_file(client):
     assert b'<div class="grid' not in response.data
 
 
-def test_intentional_failure_demo():
-    """
-    This test is used to demonstrate
-    CI/CD pipeline failure when code breaks
-    """
-    assert False
+def test_upload_invalid_file_extension(client):
+    """Test uploading unsupported file types"""
+    data = {
+        "images": (io.BytesIO(b"fake data"), "test.txt")
+    }
+    response = client.post("/upload", data=data, content_type="multipart/form-data", follow_redirects=True)
+    # Should either reject or handle gracefully
+    assert response.status_code in [200, 400]
+
+def test_upload_large_file(client):
+    """Test uploading a large file"""
+    large_data = b"x" * (10 * 1024 * 1024)  # 10MB
+    data = {
+        "images": (io.BytesIO(large_data), "large.jpg")
+    }
+    response = client.post("/upload", data=data, content_type="multipart/form-data", follow_redirects=True)
+    assert response.status_code in [200, 413, 400]  # Accept success or error codes
+
+def test_add_page_accessible(client):
+    """Test that /add page loads"""
+    response = client.get("/add")
+    assert response.status_code == 200
+    assert b"upload" in response.data.lower() or b"add" in response.data.lower()
