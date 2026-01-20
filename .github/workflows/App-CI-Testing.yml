@@ -21,13 +21,16 @@ jobs:
         with:
           python-version: '3.13.3' 
 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flask pytest
+
       # Run tests
       - name: Run tests
         run: |
-          echo "Placeholder for your test functions"
-          # TODO: replace the line below with your test command once ready
-          # e.g., pytest tests/
-          echo "No tests yet, workflow is passing by default"
+          cd sample-app
+          pytest tests --maxfail=1 --disable-warnings -q- name: Enable auto-mergeuses: peter-evans/enable-pull-request-automerge@v3with:token: ${{ secrets.GITHUB_TOKEN }}merge-method: squash 
 
         # Enable auto-merge for PRs
       - name: Enable auto-merge
