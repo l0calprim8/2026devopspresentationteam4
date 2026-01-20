@@ -30,8 +30,8 @@ jobs:
       - name: Run tests
         run: |
           cd sample-app
-          pytest tests --maxfail=1 --disable-warnings -q- name: Enable auto-mergeuses: peter-evans/enable-pull-request-automerge@v3with:token: ${{ secrets.GITHUB_TOKEN }}merge-method: squash 
-
+          pytest tests --maxfail=1 --disable-warnings -q
+          
         # Enable auto-merge for PRs
       - name: Enable auto-merge
         uses: peter-evans/enable-pull-request-automerge@v3
