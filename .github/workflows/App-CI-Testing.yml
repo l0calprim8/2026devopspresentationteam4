@@ -1,0 +1,37 @@
+name: Python CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Setup Python env
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13.3' 
+
+      # Run tests
+      - name: Run tests
+        run: |
+          echo "Placeholder for your test functions"
+          # TODO: replace the line below with your test command once ready
+          # e.g., pytest tests/
+          echo "No tests yet, workflow is passing by default"
+
+        # Enable auto-merge for PRs
+      - name: Enable auto-merge
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          merge-method: squash
