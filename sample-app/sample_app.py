@@ -4,21 +4,35 @@ from flask import request
 from flask import render_template
 from flask import redirect
 from flask import session
+from flask import send_from_directory
 
 
 
 
 sample = Flask(__name__)
 sample.secret_key = "123"
-sample.config["CLEARED_ON_START"] = False
 
-@sample.before_request
-def clear_once_per_start():
-    if not sample.config["CLEARED_ON_START"]:
-        session.clear()
-        sample.config["CLEARED_ON_START"] = True
-        
+UPLOAD_FOLDER = "uploads"
+
+IMAGES_DB = "uploads/images.txt"
+
+def load_images():
+    try:
+        with open(IMAGES_DB, "r") as f:
+            return [line.strip() for line in f if line.strip()]
+    except FileNotFoundError:
+        return []
+
+def save_images(images):
+    with open(IMAGES_DB, "w") as f:
+        for img in images:
+            f.write(img + "\n")
+
+
 @sample.route("/")
+def uploaded_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
+
 def main():
     images = session.get("images", [])
     count = len(images)
@@ -62,7 +76,7 @@ def upload():
         file.save("static/uploads/" + filename)
         images.append(filename)
 
-    session["images"] = images
+    save_images(images)
     return redirect("/")
 
 
