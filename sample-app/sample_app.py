@@ -28,13 +28,16 @@ def save_images(images):
         for img in images:
             f.write(img + "\n")
 
+@sample.route("/", methods=["GET"])
+def home():
+    return main()
 
-@sample.route("/")
+@sample.route("/uploads/<filename>")
 def uploaded_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
 
 def main():
-    images = session.get("images", [])
+    images = load_images()
     count = len(images)
     
     gallery = ""
@@ -73,7 +76,7 @@ def upload():
         if not file or file.filename == "":
             continue
         filename = file.filename
-        file.save("static/uploads/" + filename)
+        file.save(UPLOAD_FOLDER + "/" + filename)
         images.append(filename)
 
     save_images(images)
