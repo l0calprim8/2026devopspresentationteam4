@@ -5,6 +5,9 @@ from flask import render_template
 from flask import redirect
 from flask import session
 from flask import send_from_directory
+import mysql.connector
+from werkzeug.security import check_password_hash, generate_password_hash
+from functools import wraps
 
 
 
@@ -15,6 +18,42 @@ sample.secret_key = "123"
 UPLOAD_FOLDER = "uploads"
 
 IMAGES_DB = "uploads/images.txt"
+
+# Database configuration
+DB_CONFIG = {
+    'host': '5f4qza.h.filess.io',
+    'user': 'C270 DevOps_searchten',
+    'password': '9a592585756f756e1d86f580ac6e7cfb69f2607a',
+    'port': 3307,
+    'database': 'C270 DevOps_searchten'
+}
+
+def get_db_connection():
+    return mysql.connector.connect(**DB_CONFIG)
+
+def init_db():
+    """Check database connection"""
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Just verify we can connect
+        cursor.execute("SELECT 1")
+        cursor.close()
+        conn.close()
+        print("✓ Database connection successful")
+    except Exception as e:
+        print(f"✗ Database connection error: {e}")
+        print("  App will continue but database features may not work")
+
+def login_required(f):
+    """Decorator to require login"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
 
 def load_images():
     try:
@@ -31,6 +70,84 @@ def save_images(images):
 @sample.route("/", methods=["GET"])
 def home():
     return main()
+
+@sample.route("/login", methods=["GET", "POST"])
+def login():
+    """Handle user login"""
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        
+        if not username or not password:
+            return render_template("login.html", error="Username and password are required")
+        
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            cursor.execute('SELECT id, password FROM users WHERE username = %s', (username,))
+            user = cursor.fetchone()
+            cursor.close()
+            conn.close()
+            
+            if user and check_password_hash(user[1], password):
+                session['user_id'] = user[0]
+                session['username'] = username
+                return redirect('/')
+            else:
+                return render_template("login.html", error="Invalid username or password")
+        except Exception as e:
+            return render_template("login.html", error="Database error occurred")
+    
+    return render_template("login.html")
+
+@sample.route("/register", methods=["GET", "POST"])
+def register():
+    """Handle user registration"""
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirm_password = request.form.get("confirm_password")
+        
+        if not username or not password or not confirm_password:
+            return render_template("register.html", error="All fields are required")
+        
+        if password != confirm_password:
+            return render_template("register.html", error="Passwords do not match")
+        
+        if len(password) < 6:
+            return render_template("register.html", error="Password must be at least 6 characters long")
+        
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            
+            # Check if username already exists
+            cursor.execute('SELECT id FROM users WHERE username = %s', (username,))
+            if cursor.fetchone():
+                cursor.close()
+                conn.close()
+                return render_template("register.html", error="Username already exists")
+            
+            # Create new user with hashed password
+            hashed_pwd = generate_password_hash(password)
+            cursor.execute('INSERT INTO users (username, password) VALUES (%s, %s)',
+                         (username, hashed_pwd))
+            
+            conn.commit()
+            cursor.close()
+            conn.close()
+            
+            return render_template("register.html", success="Account created successfully! You can now login.")
+        except Exception as e:
+            return render_template("register.html", error="An error occurred during registration")
+    
+    return render_template("register.html")
+
+@sample.route("/logout", methods=["GET"])
+def logout():
+    """Handle user logout"""
+    session.clear()
+    return redirect('/login')
 
 @sample.route("/uploads/<filename>")
 def uploaded_file(filename):
@@ -56,16 +173,22 @@ def main():
             )
 
         gallery = gallery + '</div>'
-
-    return render_template("index.html", gallery=gallery)
+    
+    is_logged_in = 'user_id' in session
+    return render_template("index.html", gallery=gallery, is_logged_in=is_logged_in, username=session.get('username'))
 
 @sample.route("/add", methods=["GET"])
 def add_page():
+    if 'user_id' not in session:
+        return redirect('/login')
     return render_template("Add.html")
 
 
 @sample.route("/upload", methods=["POST"])
 def upload():
+    if 'user_id' not in session:
+        return redirect('/login')
+    
     files = request.files.getlist("images")
     if not files:
         return redirect("/")
@@ -83,6 +206,7 @@ def upload():
     return redirect("/")
 
 
-
 if __name__ == "__main__":
+    print("Starting Flask app...")
+    print("Note: Make sure the 'users' table exists in your database")
     sample.run(host="0.0.0.0", port=8080, threaded=True)
