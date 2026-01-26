@@ -2,6 +2,29 @@
 <head>
     <title>Upload Images</title>
     <link rel="stylesheet" href="/static/style.css" />
+    <style>
+        .navbar-right {
+            float: right;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .navbar-right a {
+            text-decoration: none;
+            color: white;
+            padding: 8px 12px;
+            background-color: #d32f2f;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .navbar-right a:hover {
+            background-color: #c62828;
+        }
+        .user-info {
+            color: white;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
 
@@ -10,6 +33,10 @@
             <li><a href="/">Home</a></li>
             <li><a href="/add">Add</a></li>
         </ul>
+        <div class="navbar-right">
+            <span class="user-info">Logged in as: <strong>{{ username }}</strong></span>
+            <a href="/logout">Logout</a>
+        </div>
     </nav>
 
     <h2>Upload image(s)</h2>
