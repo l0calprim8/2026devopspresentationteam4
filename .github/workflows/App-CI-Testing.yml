@@ -76,7 +76,7 @@ jobs:
 
   #auto merge
   automerge:
-    needs: [test, docker]
+    needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 
