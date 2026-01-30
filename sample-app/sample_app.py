@@ -5,6 +5,10 @@ from flask import render_template
 from flask import redirect
 from flask import session
 from flask import send_from_directory
+from flask import jsonify
+from datetime import datetime
+
+
 
 
 # Conditional import of mysql.connector to allow tests to run
@@ -24,6 +28,7 @@ IMAGES_DB = "uploads/images.txt"
 import os
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(os.path.dirname(IMAGES_DB), exist_ok=True)
+
 
 # Database configuration
 DB_CONFIG = {
@@ -53,6 +58,43 @@ def init_db():
     except Exception as e:
         print(f"✗ Database connection error: {e}")
         print("  App will continue but database features may not work")
+
+# Show backend
+@sample.route("/system", methods=["GET"])
+def system_status():
+    # ---- Database check (safe) ----
+    db_ok = False
+    db_error = None
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT 1")
+        cur.fetchone()
+        cur.close()
+        conn.close()
+        db_ok = True
+    except Exception as e:
+        db_error = str(e)
+
+    # ---- System report ----
+    return jsonify({
+        "ok": True,
+        "backend": "running",
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "checks": {
+            "flask_app": True,
+            "session_enabled": bool(sample.secret_key),
+            "database_connected": db_ok,
+            "database_error": db_error,
+            "upload_folder_exists": os.path.exists(UPLOAD_FOLDER),
+            "images_db_exists": os.path.exists(IMAGES_DB),
+        },
+        "environment": {
+            "PORT": os.getenv("PORT", "not set"),
+            "RENDER": os.getenv("RENDER", "not set"),
+            "PYTHON_VERSION": os.getenv("PYTHON_VERSION", "unknown")
+        }
+    })
 
 def login_required(f):
     """Decorator to require login"""
@@ -217,4 +259,5 @@ def upload():
 if __name__ == "__main__":
     print("Starting Flask app...")
     print("Note: Make sure the 'users' table exists in your database")
+    init_db()
     sample.run(host="0.0.0.0", port=8080, threaded=True)
