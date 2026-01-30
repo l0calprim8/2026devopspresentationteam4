@@ -5,18 +5,18 @@ from flask import render_template
 from flask import redirect
 from flask import session
 from flask import send_from_directory
-#import mysql.connector
+# Conditional import of mysql.connector to allow tests to run
+try:
+    import mysql.connector
+except ImportError:
+    mysql = None
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
-
-
-
 
 sample = Flask(__name__)
 sample.secret_key = "123"
 
 UPLOAD_FOLDER = "uploads"
-
 IMAGES_DB = "uploads/images.txt"
 
 # Database configuration
@@ -29,6 +29,9 @@ DB_CONFIG = {
 }
 
 def get_db_connection():
+    """Return a MySQL connection if available, else raise RuntimeError."""
+    if mysql is None:
+        raise RuntimeError("MySQL connector not available")
     return mysql.connector.connect(**DB_CONFIG)
 
 def init_db():
@@ -36,7 +39,6 @@ def init_db():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        
         # Just verify we can connect
         cursor.execute("SELECT 1")
         cursor.close()
