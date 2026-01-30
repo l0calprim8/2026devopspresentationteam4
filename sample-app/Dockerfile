@@ -1,5 +1,6 @@
 FROM python
 WORKDIR /
+RUN python -m pip install --no-cache-dir flask mysql-connector-python
 RUN python -m pip install --no-cache-dir --progress-bar off flask
 COPY static  ./static 
 COPY templates ./templates 

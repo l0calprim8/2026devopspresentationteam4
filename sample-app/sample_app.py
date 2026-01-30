@@ -5,6 +5,8 @@ from flask import render_template
 from flask import redirect
 from flask import session
 from flask import send_from_directory
+
+
 # Conditional import of mysql.connector to allow tests to run
 try:
     import mysql.connector
@@ -18,6 +20,10 @@ sample.secret_key = "123"
 
 UPLOAD_FOLDER = "uploads"
 IMAGES_DB = "uploads/images.txt"
+
+import os
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(os.path.dirname(IMAGES_DB), exist_ok=True)
 
 # Database configuration
 DB_CONFIG = {
@@ -170,7 +176,7 @@ def main():
         for img in images:
             gallery = gallery + (
                 '<div class="card">'
-                '<img src="/static/uploads/' + img + '">'
+                '<img src="/uploads/' + img + '">'
                 '</div>'
             )
 
@@ -195,7 +201,7 @@ def upload():
     if not files:
         return redirect("/")
 
-    images = session.get("images", [])
+    images = load_images()
 
     for file in files:
         if not file or file.filename == "":
