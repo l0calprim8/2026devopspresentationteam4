@@ -5,7 +5,7 @@ from flask import render_template
 from flask import redirect
 from flask import session
 from flask import send_from_directory
-import mysql.connector
+#import mysql.connector
 from werkzeug.security import check_password_hash, generate_password_hash
 from functools import wraps
 
