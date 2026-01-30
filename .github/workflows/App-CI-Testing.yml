@@ -74,15 +74,15 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/sample-app:latest
 
-  #auto merge
-  automerge:
-    needs: [test, docker]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+  #auto merge (COMMENTED TO PREVENT SKIPP!!!!!!!)
+  # automerge:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'pull_request'
 
-    steps:
-      - name: Enable auto-merge
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          merge-method: squash
+  #   steps:
+  #     - name: Enable auto-merge
+  #       uses: peter-evans/enable-pull-request-automerge@v3
+  #       with:
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         merge-method: squash
