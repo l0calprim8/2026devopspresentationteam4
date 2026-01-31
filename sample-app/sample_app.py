@@ -32,11 +32,11 @@ os.makedirs(os.path.dirname(IMAGES_DB), exist_ok=True)
 
 # Database configuration
 DB_CONFIG = {
-    'host': '5f4qza.h.filess.io',
-    'user': 'C270 DevOps_searchten',
-    'password': '9a592585756f756e1d86f580ac6e7cfb69f2607a',
-    'port': 3307,
-    'database': 'C270 DevOps_searchten'
+    "host": os.getenv("DB_HOST", "5f4qza.h.filess.io"),
+    "user": os.getenv("DB_USER", "C270 DevOps_searchten"),
+    "password": os.getenv("DB_PASSWORD", "9a592585756f756e1d86f580ac6e7cfb69f2607a"),
+    "port": int(os.getenv("DB_PORT", "3307")),
+    "database": os.getenv("DB_NAME", "C270 DevOps_searchten"),
 }
 
 def get_db_connection():
@@ -49,9 +49,10 @@ def init_db():
     """Check database connection"""
     try:
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(buffered=True)
         # Just verify we can connect
         cursor.execute("SELECT 1")
+        cursor.fetchone() 
         cursor.close()
         conn.close()
         print("✓ Database connection successful")
@@ -67,7 +68,7 @@ def system_status():
     db_error = None
     try:
         conn = get_db_connection()
-        cur = conn.cursor()
+        cur = conn.cursor(buffered=True)
         cur.execute("SELECT 1")
         cur.fetchone()
         cur.close()
