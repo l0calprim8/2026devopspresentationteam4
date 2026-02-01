@@ -2,6 +2,7 @@ import os
 import io
 import pytest
 from sample_app import IMAGES_DB, UPLOAD_FOLDER
+from werkzeug.datastructures import MultiDict
 
 
 def test_homepage_no_images(client):
@@ -124,13 +125,18 @@ def test_delete_multiple_images(authenticated_client, clear_images_file):
         (io.BytesIO(b"image1"), "img1.jpg"),
         (io.BytesIO(b"image2"), "img2.jpg")
     ]
-    data = [("images", file) for file in files]
+
+    data = MultiDict([
+        ("images", file) for file in files
+    ])
+
     authenticated_client.post(
         "/upload",
         data=data,
         content_type="multipart/form-data",
         follow_redirects=True
     )
+
     
     # Delete multiple images
     filenames_to_delete = ["img1.jpg", "img2.jpg"]
