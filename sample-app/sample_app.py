@@ -265,13 +265,6 @@ def upload():
     return redirect("/")
 
 
-if __name__ == "__main__":
-    print("Starting Flask app...")
-    print("Note: Make sure the 'users' table exists in your database")
-    init_db()
-    sample.run(host="0.0.0.0", port=8080, threaded=True)
-
-
 # delete route
 @sample.route("/delete/<filename>", methods=["POST"])
 def delete_image(filename):
@@ -316,3 +309,9 @@ def delete_multiple_images():
             os.remove(file_path)
 
     return redirect("/")
+
+if __name__ == "__main__":
+    print("Starting Flask app...")
+    print("Note: Make sure the 'users' table exists in your database")
+    init_db()
+    sample.run(host="0.0.0.0", port=8080, threaded=True)
