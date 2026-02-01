@@ -22,8 +22,9 @@ from functools import wraps
 sample = Flask(__name__)
 sample.secret_key = "123"
 
-UPLOAD_FOLDER = "uploads"
-IMAGES_DB = "uploads/images.txt"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
+IMAGES_DB = os.path.join(UPLOAD_FOLDER, "images.txt")
 
 import os
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -217,13 +218,19 @@ def main():
             gallery = '<div class="grid odd">'
 
         for img in images:
-            gallery = gallery + (
+            gallery += (
                 '<div class="card">'
-                '<img src="/uploads/' + img + '">'
-                '</div>'
+                f'<img src="/uploads/{img}">'
             )
-
-        gallery = gallery + '</div>'
+        
+            if 'user_id' in session:
+                gallery += (
+                    f'<form method="POST" action="/delete/{img}">'
+                    '<button type="submit">Delete</button>'
+                    '</form>'
+                )
+ 
+            gallery += '</div>'
     
     is_logged_in = 'user_id' in session
     return render_template("index.html", gallery=gallery, is_logged_in=is_logged_in, username=session.get('username'))
@@ -262,3 +269,24 @@ if __name__ == "__main__":
     print("Note: Make sure the 'users' table exists in your database")
     init_db()
     sample.run(host="0.0.0.0", port=8080, threaded=True)
+
+
+# delete route
+@sample.route("/delete/<filename>", methods=["POST"])
+def delete_image(filename):
+    if 'user_id' not in session:
+        return redirect('/login')
+ 
+    # Load images from images.txt
+    images = load_images()
+ 
+    # Remove filename from list
+    images = [img for img in images if img != filename]
+    save_images(images)
+ 
+    # Remove actual file
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+ 
+    return redirect("/")
