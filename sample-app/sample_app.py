@@ -23,11 +23,14 @@ from functools import wraps
 sample = Flask(__name__)
 sample.secret_key = "123"
 
-UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", "/uploads")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 IMAGES_DB = os.path.join(UPLOAD_FOLDER, "images.txt")
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(os.path.dirname(IMAGES_DB), exist_ok=True)
+
 
 # Database configuration
 DB_CONFIG = {
@@ -261,7 +264,7 @@ def upload():
     save_images(images)
     return redirect("/")
 
-# For demo
+
 # delete route
 @sample.route("/delete/<filename>", methods=["POST"])
 def delete_image(filename):
@@ -281,7 +284,6 @@ def delete_image(filename):
         os.remove(file_path)
  
     return redirect("/")
-
 
 @sample.route("/delete", methods=["POST"])
 def delete_multiple_images():

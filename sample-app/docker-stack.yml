@@ -6,6 +6,7 @@ services:
     ports:
       - "8080:8080"   
     environment:
+      UPLOAD_FOLDER: "/uploads"
       DB_HOST: "5f4qza.h.filess.io"
       DB_USER: "C270 DevOps_searchten"
       DB_PASSWORD: "9a592585756f756e1d86f580ac6e7cfb69f2607a"
