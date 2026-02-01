@@ -291,3 +291,28 @@ def delete_image(filename):
         os.remove(file_path)
  
     return redirect("/")
+
+@sample.route("/delete", methods=["POST"])
+def delete_multiple_images():
+    if 'user_id' not in session:
+        return redirect('/login')
+
+    # Get list of filenames from form
+    filenames = request.form.getlist("filenames")
+
+    if not filenames:
+        return redirect("/")
+
+    images = load_images()
+
+    # Remove all selected images
+    images = [img for img in images if img not in filenames]
+    save_images(images)
+
+    # Remove actual files
+    for filename in filenames:
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+    return redirect("/")
