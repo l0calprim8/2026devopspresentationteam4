@@ -7,6 +7,7 @@ from flask import session
 from flask import send_from_directory
 from flask import jsonify
 from datetime import datetime
+import os
 
 
 
@@ -26,7 +27,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 IMAGES_DB = os.path.join(UPLOAD_FOLDER, "images.txt")
 
-import os
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(os.path.dirname(IMAGES_DB), exist_ok=True)
 
