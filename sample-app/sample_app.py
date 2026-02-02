@@ -266,8 +266,8 @@ def upload():
 
 
 # delete route
-#@sample.route("/delete/<filename>", methods=["POST"])
-#def delete_image(filename):
+@sample.route("/delete/<filename>", methods=["POST"])
+def delete_image(filename):
     if 'user_id' not in session:
         return redirect('/login')
  
@@ -285,8 +285,8 @@ def upload():
  
     return redirect("/")
 
-#@sample.route("/delete", methods=["POST"])
-#def delete_multiple_images():
+@sample.route("/delete", methods=["POST"])
+def delete_multiple_images():
     if 'user_id' not in session:
         return redirect('/login')
 
