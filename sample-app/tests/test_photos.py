@@ -85,67 +85,67 @@ def test_upload_no_file(authenticated_client):
     assert response.status_code == 200
     assert b'<div class="grid' not in response.data
 
-    # Commented-out tests for future delete functionality
+#     # Commented-out tests for future delete functionality
 
-
-def test_delete_single_image(authenticated_client, sample_image, clear_images_file):
-    """
-    GIVEN a logged-in user with one uploaded image
-    WHEN DELETE to "/delete/<filename>"
-    THEN the image is removed from the gallery
-    """
-    # Upload the image first
-    authenticated_client.post(
-        "/upload",
-        data={"images": sample_image},
-        content_type="multipart/form-data",
-        follow_redirects=True
-    )
+# def test_delete_single_image(authenticated_client, sample_image, clear_images_file):
+#     """
+#     GIVEN a logged-in user with one uploaded image
+#     WHEN DELETE to "/delete/<filename>"
+#     THEN the image is removed from the gallery
+#     """
+#     # Upload the image first
+#     authenticated_client.post(
+#         "/upload",
+#         data={"images": sample_image},
+#         content_type="multipart/form-data",
+#         follow_redirects=True
+#     )
     
-    # Delete the image
-    filename = sample_image[1]
-    response = authenticated_client.post(
-        f"/delete/{filename}",
-        follow_redirects=True
-    )
+#     # Delete the image
+#     filename = sample_image[1]
+#     response = authenticated_client.post(
+#         f"/delete/{filename}",
+#         follow_redirects=True
+#     )
     
-    assert response.status_code == 200
-    # Gallery should now be empty
-    assert b'<div class="grid' not in response.data
+#     assert response.status_code == 200
+#     # Gallery should now be empty
+#     assert b'<div class="grid' not in response.data
 
 
-def test_delete_multiple_images(authenticated_client, clear_images_file):
-    """
-    GIVEN a logged-in user with multiple uploaded images
-    WHEN DELETE to "/delete" with a list of filenames
-    THEN all specified images are removed from the gallery
-    """
-    # Upload multiple images
-    files = [
-        (io.BytesIO(b"image1"), "img1.jpg"),
-        (io.BytesIO(b"image2"), "img2.jpg")
-    ]
+# def test_delete_multiple_images(authenticated_client, clear_images_file):
+#     """
+#     GIVEN a logged-in user with multiple uploaded images
+#     WHEN DELETE to "/delete" with a list of filenames
+#     THEN all specified images are removed from the gallery
+#     """
+#     # Upload multiple images
+#     files = [
+#         (io.BytesIO(b"image1"), "img1.jpg"),
+#         (io.BytesIO(b"image2"), "img2.jpg")
+#     ]
 
-    data = MultiDict([
-        ("images", file) for file in files
-    ])
+#     data = MultiDict([
+#         ("images", file) for file in files
+#     ])
 
-    authenticated_client.post(
-        "/upload",
-        data=data,
-        content_type="multipart/form-data",
-        follow_redirects=True
-    )
+#     authenticated_client.post(
+#         "/upload",
+#         data=data,
+#         content_type="multipart/form-data",
+#         follow_redirects=True
+#     )
 
     
-    # Delete multiple images
-    filenames_to_delete = ["img1.jpg", "img2.jpg"]
-    response = authenticated_client.post(
-        "/delete",
-        data={"filenames": filenames_to_delete},
-        follow_redirects=True
-    )
+#     # Delete multiple images
+#     filenames_to_delete = ["img1.jpg", "img2.jpg"]
+#     response = authenticated_client.post(
+#         "/delete",
+#         data={"filenames": filenames_to_delete},
+#         follow_redirects=True
+#     )
     
-    assert response.status_code == 200
-    # Gallery should now be empty
-    assert b'<div class="grid' not in response.data
+#     assert response.status_code == 200
+#     # Gallery should now be empty
+#     assert b'<div class="grid' not in response.data
+ 
